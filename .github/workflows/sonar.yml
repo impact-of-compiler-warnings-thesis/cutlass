@@ -26,7 +26,6 @@ jobs:
 
       - name: Run cmake
         run: |
-          which nvcc
           export CUDACXX=${CUDA_INSTALL_PATH}/bin/nvcc
 
           mkdir build && cd build
