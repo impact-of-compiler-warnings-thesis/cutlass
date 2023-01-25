@@ -18,22 +18,25 @@ jobs:
           submodules: recursive
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v1
-      - name: Cuda toolkit install
+
+      - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.8
         id: cuda-toolkit
         with:
           cuda: "11.7.0"
 
-      - name: Install deps
+      - name: Install system dependencies
         run: |
+          sudo apt update
           sudo apt install ninja-build
 
-      - name: Run cmake
+      - name: Generate build files
+        env:
+          CUDACXX: ${{ steps.cuda-toolkit.outputs.CUDA_PATH }}/bin/nvcc
         run: |
-          export CUDACXX=${{steps.cuda-toolkit.outputs.CUDA_PATH}}/bin/nvcc
-
           mkdir build && cd build
-          cmake .. -DCUTLASS_NVCC_ARCHS=80 -GNinja
+          cmake .. -GNinja \
+                   -DCUTLASS_NVCC_ARCHS=80
       - name: Run build-wrapper
         run: |
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} ninja -C build
